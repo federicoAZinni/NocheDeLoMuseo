@@ -1,0 +1,74 @@
+rules_version = '2';
+
+// IMPORTANTE: el email del admin tiene que coincidir con ADMIN_EMAIL en public/js/firebase-init.js
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && request.auth.token.email == 'admin@nochedelosmuseos.com';
+    }
+
+    // Juegos / stands: los ve cualquiera con sesión, solo el admin los edita
+    match /stands/{standId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Claves de los stands. ID del documento = "<standId>_<clave>".
+    // Nadie más que el admin puede leerlas; las reglas solo verifican si existen.
+    match /claves/{claveId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Índice DNI -> uid, para que un DNI se registre una sola vez
+    match /dnis/{dni} {
+      allow get: if signedIn();
+      allow list: if isAdmin();
+      allow create: if signedIn()
+        && dni.matches('^[0-9]{7,8}$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /usuarios/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['nombre', 'dni', 'creado'])
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() >= 2
+        && request.resource.data.nombre.size() <= 60
+        && request.resource.data.dni is string
+        && request.resource.data.dni.matches('^[0-9]{7,8}$')
+        && request.resource.data.creado == request.time
+        && getAfter(/databases/$(database)/documents/dnis/$(request.resource.data.dni)).data.uid == uid;
+      allow update: if false;
+      allow delete: if isAdmin();
+
+      // Una figurita por stand. Solo se crea si la clave es la correcta.
+      match /figuritas/{standId} {
+        allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+        allow create: if signedIn() && request.auth.uid == uid
+          && exists(/databases/$(database)/documents/usuarios/$(uid))
+          && request.resource.data.keys().hasOnly(['clave', 'fecha'])
+          && request.resource.data.clave is string
+          && request.resource.data.clave.matches('^[a-z0-9]{3,30}$')
+          && request.resource.data.fecha == request.time
+          && exists(/databases/$(database)/documents/claves/$(standId + '_' + request.resource.data.clave));
+        allow update: if false;
+        allow delete: if isAdmin();
+      }
+    }
+
+    // Consulta de todas las figuritas (collectionGroup) para el sorteo
+    match /{path=**}/figuritas/{standId} {
+      allow read: if isAdmin();
+    }
+
+    match /ganadores/{id} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

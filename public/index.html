@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Álbum de juegos | Noche de los Museos UTN</title>
+  <meta name="theme-color" content="#1E1846">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Bungee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/album.css">
+  <script type="module" src="js/album.js"></script>
+</head>
+<body>
+  <header class="tapa">
+    <p class="tapa-org">Desarrollo de Videojuegos UTN</p>
+    <h1 class="tapa-titulo">Álbum de juegos</h1>
+    <p class="tapa-sub">Noche de los Museos</p>
+  </header>
+
+  <main>
+    <section id="vista-cargando" class="vista">
+      <p class="cargando">Abriendo tu álbum…</p>
+    </section>
+
+    <section id="vista-registro" class="vista hoja" hidden>
+      <h2>Completá el álbum y entrá al sorteo</h2>
+      <p>Jugá en cada stand. Cuando termines, la persona del stand te pega la figurita en el álbum. Con todas las figuritas participás del sorteo de premios.</p>
+      <form id="form-registro" novalidate>
+        <label for="nombre">Nombre y apellido</label>
+        <input id="nombre" name="nombre" autocomplete="name" required maxlength="60">
+        <label for="dni">DNI</label>
+        <input id="dni" name="dni" inputmode="numeric" autocomplete="off" required maxlength="10" placeholder="Sin puntos">
+        <p class="error" id="error-registro" role="alert"></p>
+        <button type="submit" class="btn btn-principal" id="btn-registro">Abrir mi álbum</button>
+      </form>
+      <p class="nota">Tu álbum queda guardado en este celular y en este navegador. Volvé a entrar siempre desde acá.</p>
+    </section>
+
+    <section id="vista-album" class="vista" hidden>
+      <div id="boleto-album" class="boleto-album" hidden></div>
+      <div class="estado">
+        <p class="hola">Álbum de <strong id="saludo-nombre"></strong></p>
+        <p id="progreso-texto" class="progreso-texto"></p>
+        <div class="progreso" id="progreso-barra" aria-hidden="true"><span></span></div>
+      </div>
+      <div class="hoja">
+        <div id="grilla" class="grilla"></div>
+      </div>
+      <p class="nota nota-clara" id="nota-album">Cuando termines de jugar, mostrale el álbum a la persona del stand para que te pegue la figurita.</p>
+    </section>
+
+    <section id="vista-aviso" class="vista hoja" hidden>
+      <h2>Este navegador tiene la sesión de administración abierta</h2>
+      <p>Para usar el álbum como participante, cerrá la sesión de administración o abrí la página en otro navegador.</p>
+      <button type="button" class="btn btn-principal" id="btn-salir-admin">Cerrar sesión de administración</button>
+    </section>
+  </main>
+
+  <dialog id="dlg-clave" aria-labelledby="clave-titulo">
+    <form id="form-clave" novalidate>
+      <p class="dlg-num" id="clave-num"></p>
+      <h2 id="clave-titulo"></h2>
+      <p>Para la persona del stand: ingresá la clave para pegar la figurita.</p>
+      <label for="clave" class="visualmente-oculto">Clave del stand</label>
+      <input id="clave" type="password" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Clave del stand">
+      <p class="error" id="error-clave" role="alert"></p>
+      <div class="acciones">
+        <button type="button" class="btn btn-sec" id="btn-cancelar-clave">Cancelar</button>
+        <button type="submit" class="btn btn-principal" id="btn-pegar">Pegar figurita</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Figurita nueva / ver figurita -->
+  <div id="capa-figu" class="capa" hidden role="dialog" aria-modal="true" aria-labelledby="figu-titulo">
+    <div class="capa-caja">
+      <div class="escena">
+        <div class="rayos" aria-hidden="true"></div>
+        <div class="figu-grande" id="figu-grande"></div>
+      </div>
+      <h2 id="figu-titulo"></h2>
+      <p id="figu-texto" class="figu-texto"></p>
+      <div id="figu-progreso" class="mini-progreso" hidden>
+        <div class="progreso" aria-hidden="true"><span></span></div>
+        <p id="figu-faltan"></p>
+      </div>
+      <div class="acciones">
+        <button type="button" class="btn btn-principal" id="btn-cerrar-figu">Volver al álbum</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Álbum completo -->
+  <div id="festejo" class="festejo" hidden role="dialog" aria-modal="true" aria-labelledby="festejo-titulo">
+    <div class="rayos-grandes" aria-hidden="true"></div>
+    <div class="festejo-flash" aria-hidden="true"></div>
+    <div class="festejo-contenido">
+      <div class="escena escena-festejo">
+        <div class="rayos" aria-hidden="true"></div>
+        <div class="figu-grande" id="festejo-figu"></div>
+      </div>
+      <h2 id="festejo-titulo" class="festejo-titulo" aria-label="¡Álbum completo!"></h2>
+      <div id="festejo-boleto" class="festejo-boleto"></div>
+      <button type="button" class="btn btn-principal" id="btn-cerrar-festejo">Ver mi álbum</button>
+    </div>
+  </div>
+
+  <canvas id="confeti" class="confeti" hidden></canvas>
+</body>
+</html>
