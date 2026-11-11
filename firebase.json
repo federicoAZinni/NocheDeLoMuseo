@@ -1,11 +1,18 @@
 {
   "hosting": {
-    "public": "public",
+    "public": "dist",
     "ignore": ["firebase.json", "**/.*"],
     "cleanUrls": true,
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ],
     "headers": [
       {
-        "source": "**/*.@(html|js|css)",
+        "source": "**/*.@(js|css)",
+        "headers": [{ "key": "Cache-Control", "value": "max-age=31536000, immutable" }]
+      },
+      {
+        "source": "/index.html",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       }
     ]
